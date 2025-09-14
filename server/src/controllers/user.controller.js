@@ -29,7 +29,7 @@ const userRegister = asyncHandler(async (req, res) => {
         throw new Apierror(400, "All fields are required")
     }
 
-    const existeduser = await User.findone({
+    const existeduser = await User.findOne({
         $or: [{ email }, { name }]
     })
 
@@ -42,9 +42,11 @@ const userRegister = asyncHandler(async (req, res) => {
             name,
             email,
             password,
-            role: role.touppercase(),
-            college: college.touppercase()
+            role: role.toUpperCase(),
+            college: college.toUpperCase()
         })
+
+        confirmsole.log(email)
     
         const createduser = await User.findById(user._id)
     
@@ -55,6 +57,7 @@ const userRegister = asyncHandler(async (req, res) => {
         return res.status(201).json(new ApiResponse(200,createduser,"User registered successfully."))
         
     } catch (error) {
+        console.log("User creation failed")
         throw new Apierror(500, "Failed to create user")
     }
 })

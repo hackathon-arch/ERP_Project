@@ -11,13 +11,16 @@ const errorhandler = (err, req, res, next) => {
         error = new Apierror(statusCode, message, error?.errors || [], err.stack)
     }
 
+    const statusCode = error.statusCode || 500;
+
     const response = {
         ...error,
         message: error.message,
         ...(process.env.NODE_ENV === "development" ? {stack: error.stack } : {})
     }
+    console.log(statusCode)
 
-    return res.status(error.statusCode).json(response)
+    return res.status(statusCode).json(response)
 
 }
 
