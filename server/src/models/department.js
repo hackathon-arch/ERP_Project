@@ -3,12 +3,16 @@ import mongoose from "mongoose";
 const departmentSchema = new mongoose.Schema(
   {
     name: {
-      type: String, 
+      type: String,
       required: true,
     },
     college: {
       type: mongoose.Schema.ObjectId,
       ref: "College",
+      required: true,
+    },
+    hod: {
+      type: String,
       required: true,
     },
   },
