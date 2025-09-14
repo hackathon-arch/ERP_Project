@@ -1,94 +1,46 @@
-# College ERP System
+### works done today :
 
-A modern, scalable, and low-cost ERP solution designed for educational institutions. This system streamlines administrative processes like fee collection, hostel allocation, and student management, providing a single source of truth for all college data. Built for the Smart India Hackathon.
+1. auth routes (register + login + logout) and a protection middleware 
 
----
+2. creation of some users and linking them to the room model + college model + department model 
 
-## ✨ Features
+## next steps : 
 
-- **Role-Based Access Control:** A secure system with distinct roles and permissions for Students, Hostel Admins, College Admins, and a Super Admin.
-- **Automated Fee Management:** A complete module for creating fee structures, tracking payments, and generating real-time payment statuses.
-- **Live Hostel Allocation:** An integrated system for students to apply for hostel rooms and for admins to manage room capacity, allocation, and occupancy.
-- **Centralized Announcements:** A platform for college administration to broadcast announcements to all students or specific groups.
-- **Scalable Architecture:** Built on a modern technology stack designed for performance, security, and maintainability.
+# Phase 2: Fee & Payment Module
+- [ ] **Creating Fee Structure**:
+    - [ ] Create a `createFeeStructure` controller for a `college_admin` to define a new fee (e.g., "Semester 3 Lab Fee", amount, due date).
+    - [ ] Create the corresponding route: `POST /api/v1/fees/create`.
+- [ ] **View Due Fees**:
+    - [ ] Create a controller for a logged-in student to see a list of fees they need to pay.
+    - [ ] Create the route: `GET /api/v1/payments/due`.
+- [ ] **Process a Payment**:
+    - [ ] Create a controller that simulates a successful payment. It should create a new document in the `payments` collection linked to the student and the fee structure.
+    - [ ] Create the route: `POST /api/v1/payments/pay`.
 
----
+# Phase 3: Hostel Management Module
+- [ ] **Student Application**:
+    - [ ] Create a controller for a logged-in student to apply for a hostel. This should update their `hostel_application_status` to `"applied"`.
+    - [ ] Create the route: `POST /api/v1/hostel/apply`.
+- [ ] **Admin Views Applications**:
+    - [ ] Create a controller for a `hostel_admin` to get a list of all students with `hostel_application_status: "applied"`.
+    - [ ] Create the route: `GET /api/v1/hostel/applications`.
+- [ ] **Admin Allocates Room**:
+    - [ ] Create a controller for a `hostel_admin` to allocate an existing, empty room to a student. This must update the `Room` model (add student to `people` array) and the `User` model (update `allocated_room` and `hostel_application_status`).
+    - [ ] Create the route: `POST /api/v1/hostel/allocate`.
 
-## 🛠️ Tech Stack
+# Phase 4: Announcement Module
+- [ ] **Create Announcement**:
+    - [ ] Create a controller for a `college_admin` to post a new announcement.
+    - [ ] Create the route: `POST /api/v1/announcements/create`.
+- [ ] **View Announcements**:
+    - [ ] Create a controller for any logged-in user to see a list of all announcements.
+    - [ ] Create the route: `GET /api/v1/announcements`.
 
-- **Backend:** Node.js, Express.js
-- **Database:** MongoDB with Mongoose ODM
-- **Authentication:** JSON Web Tokens (JWT)
-- **Frontend:** React.js (planned)
+# Phase 5: Final Touches
+- [ ] **Implement Refresh Token Route**:
+    - [ ] Create a controller that handles refreshing the `accessToken` using the `refreshToken`.
+    - [ ] Create the route: `POST /api/v1/users/refresh-token`.
+- [ ] **Create Helper "Get" Routes**:
+    - [ ] Create routes for admins to get lists of data needed for the frontend, such as `GET /api/v1/users/students` (get all students) or `GET /api/v1/hostel/rooms` (get all rooms).
 
----
-
-## 🚀 Project Setup
-
-1.  **Clone the repository:**
-
-    ```bash
-    git clone <your-repository-url>
-    cd <repository-name>
-    ```
-
-2.  **Install backend dependencies:**
-
-    ```bash
-    npm install
-    ```
-
-3.  **Create the environment variables file:**
-    Create a `.env` file in the root directory and add the following variables. Replace the placeholder values with your actual configuration.
-
-    ```env
-    PORT=8000
-    MONGODB_URI=your_mongodb_connection_string
-
-    ACCESS_TOKEN_SECRET=your_super_secret_access_token_key
-    ACCESS_TOKEN_EXPIRY=1d
-    REFRESH_TOKEN_SECRET=your_super_secret_refresh_token_key
-    REFRESH_TOKEN_EXPIRY=10d
-    ```
-
-4.  **Run the development server:**
-    ```bash
-    npm run dev
-    ```
-    The server will start on the port specified in your `.env` file (e.g., `http://localhost:8000`).
-
----
-
-## 📝 Backend Next Steps / Roadmap
-
-This is the checklist for building out the backend functionality. The data models are complete and provide a solid foundation for these tasks.
-
-### ✅ Phase 1: Core Infrastructure Setup
-
-- [ ] **Initialize Project Structure:** Create the `/controllers`, `/routes`, `/middlewares`, and `/utils` directories.
-- [ ] **Establish Database Connection:** Write the logic in `index.js` or a separate config file to connect to MongoDB using the `MONGODB_URI`.
-- [ ] **Create Utility Classes:** Implement reusable classes for standardized API responses and error handling (e.g., `ApiResponse.js`, `ApiError.js`).
-- [ ] **Setup Centralized Error Handling:** Create an error handling middleware to catch all errors and send a consistent JSON response.
-
-### ✅ Phase 2: Authentication & User Management
-
-- [ ] **Implement User Registration:** Create the `registerUser` controller and route. Initially, this might be a protected route for an admin to create users.
-- [ ] **Implement User Login:** Create the `loginUser` controller and route to authenticate users and issue JWT access and refresh tokens.
-- [ ] **Create `verifyJWT` Middleware:** Build the core authentication middleware to protect routes.
-- [ ] **Implement Logout:** Create a `logoutUser` controller and route to clear the refresh token from the user's record.
-- [ ] **Build User Profile Route:** Create a protected route (`GET /api/v1/users/me`) for authenticated users to fetch their own profile.
-
-### ✅ Phase 3: Feature Implementation (API Endpoints)
-
-- [ ] **Fee & Payment Module:**
-  - [ ] `POST /api/v1/fees` (Admin): Create a `FeeStructure`.
-  - [ ] `GET /api/v1/payments/due` (Student): View all applicable fees that are unpaid.
-  - [ ] `POST /api/v1/payments/initiate` (Student): Endpoint to handle payment initiation with a gateway.
-- [ ] **Hostel Module:**
-  - [ ] `POST /api/v1/hostel/apply` (Student): Apply for a hostel room.
-  - [ ] `GET /api/v1/hostel/applications` (Hostel Admin): View a list of student applications.
-  - [ ] `POST /api/v1/hostel/allocate` (Hostel Admin): Implement the core logic to allocate a specific room to a student.
-- [ ] **Announcement Module:**
-  - [ ] `POST /api/v1/announcements` (College Admin): Create a new announcement.
-  - [ ] `GET /api/v1/announcements` (All Users): Fetch all visible announcements.
-  - [ ] `DELETE /api/v1/announcements/:id` (College Admin): Delete an announcement.
+### then we need to start on working for frontend
