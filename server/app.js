@@ -14,12 +14,15 @@ app.use(express.json());
 app.use(cors());
 
 import healtcheckRouter from './src/routers/healthcheck.routes.js';
-
+import userRouter from './src/routers/user.routes.js';
+import { errorhandler } from './src/middlewares/error.middlewares.js';
 
 app.get("/home", (req, res) => {
   res.json({ message: "this is the home route" });
 });
 
 app.use("/healthcheck", healtcheckRouter)
+app.use("/users", userRouter)
 
+app.use(errorhandler);
 export default app;

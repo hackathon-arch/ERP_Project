@@ -111,4 +111,4 @@ userSchema.methods.generateTempToken = function () {
 };
 
 const User = mongoose.model("User", userSchema);
-export default User;
+export { User };
