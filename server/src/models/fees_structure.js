@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const feeStructureSchema = new mongoose.Schema(
   {
     title: {
-      type: String, // e.g., "Tuition Fee - Fall 2025"
+      type: String, 
       required: true,
     },
     description: String,

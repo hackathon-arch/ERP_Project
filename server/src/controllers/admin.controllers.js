@@ -1,4 +1,4 @@
-import User from "../models/user.js";
+import { User } from "../models/user.js";
 import College from "../models/college.js";
 import Department from "../models/department.js";
 import Hostel from "../models/hostel.js";
@@ -58,6 +58,5 @@ const create_department = async (req, res) => {
   }
 };
 
-const create_hostel = async (req, res) => {};
 
-export { create_college, create_department };
+export { create_college, create_department  };

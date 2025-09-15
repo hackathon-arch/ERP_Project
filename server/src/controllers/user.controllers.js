@@ -1,4 +1,4 @@
-import User from "../models/user.js";
+import {User} from "../models/user.js";
 import College from "../models/college.js";
 import Department from "../models/department.js";
 import { Apierror } from "../utils/ApiError.js";
