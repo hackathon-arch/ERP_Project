@@ -58,5 +58,40 @@ const create_department = async (req, res) => {
   }
 };
 
+const create_hostel = async (req, res) => {
+  const { name, address, college_name, warden_name, room_number } = req.body;
+  const found_college = await College.findOne({ name: college_name });
+  if (!found_college) {
+    return res
+      .status(404)
+      .json({ message: "college is not found with this name" });
+  }
+  const found_warden = await User.findOne({ name: warden_name });
+  if (!found_warden) {
+    return res.status(404).json({ message: "user not found" });
+  }
+  if (found_warden.role !== "hostel_admin") {
+    return res
+      .status(489)
+      .json({ message: "User found but the user is not an hostel admin" });
+  }
 
-export { create_college, create_department  };
+  const created_hostel = await Hostel.create({
+    name,
+    address,
+    college: found_college._id,
+    warden: found_warden._id,
+    rooms: room_number,
+  });
+
+  //const belonging_rooms = await Room.find({}) ;
+
+
+  console.log("Hostel created successfully ✅");
+  return res.status(201).json({
+    message: "Hostel creation successful",
+    data: created_hostel,
+  });
+};
+
+export { create_college, create_department , create_hostel};

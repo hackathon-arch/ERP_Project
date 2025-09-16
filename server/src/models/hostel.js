@@ -16,14 +16,12 @@ const hostelSchema = new mongoose.Schema(
     },
     warden: {
       type: mongoose.Types.ObjectId,
-      ref: "User", 
+      ref: "User",
     },
-    rooms: [
-      {
-        type: mongoose.Types.ObjectId,
-        ref: "Room",
-      },
-    ],
+    rooms: {
+      type: Number,
+      required: true,
+    },
   },
   { timestamps: true }
 );
