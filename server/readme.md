@@ -48,3 +48,7 @@
   - [ ] Create routes for admins to get lists of data needed for the frontend, such as `GET /api/v1/users/students` (get all students) or `GET /api/v1/hostel/rooms` (get all rooms).
 
 ### then we need to start on working for frontend
+
+also added the issue in the main repo
+
+
