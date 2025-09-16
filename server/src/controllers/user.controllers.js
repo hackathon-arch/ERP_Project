@@ -1,4 +1,4 @@
-import {User} from "../models/user.js";
+import { User } from "../models/user.js";
 import College from "../models/college.js";
 import Department from "../models/department.js";
 import { Apierror } from "../utils/ApiError.js";
@@ -19,36 +19,37 @@ const register = async (req, res) => {
       departmentName,
     } = req.body;
 
-    // 1. Validation and existence checks (same as before)
+    const baseRequiredFields = [name, email, password, role, collegeName];
+    if (role === "student") {
+      baseRequiredFields.push(enrollment, semester, departmentName);
+    }
+
     if (
-      [name, email, password, role, collegeName].some(
-        (field) => !field || field.trim() === ""
-      )
+      baseRequiredFields.some((field) => !field || String(field).trim() === "")
     ) {
       return res
         .status(400)
         .json(new Apierror(400, "All required fields must be provided"));
     }
 
-    const existingUser = await User.findOne({
-      $or: [{ email }, { enrollment }],
-    });
-    if (existingUser) {
-      return res
-        .status(409)
-        .json(
-          new Apierror(
-            409,
-            "User with this email or enrollment number already exists"
-          )
-        );
+    const uniquenessQuery = [{ email }];
+    if (enrollment) {
+      uniquenessQuery.push({ enrollment });
     }
-
+    const existingUser = await User.findOne({ $or: uniquenessQuery });
+    if (existingUser) {
+      let errorMessage = "User already exists.";
+      if (existingUser.email === email) {
+        errorMessage = "User with this email already exists.";
+      } else if (existingUser.enrollment === enrollment) {
+        errorMessage = "User with this enrollment number already exists.";
+      }
+      return res.status(409).json(new Apierror(409, errorMessage));
+    }
     const college = await College.findOne({ name: collegeName });
     if (!college) {
       return res.status(404).json(new Apierror(404, "College not found"));
     }
-
     let departmentId = null;
     if (role === "student") {
       const department = await Department.findOne({
@@ -62,30 +63,25 @@ const register = async (req, res) => {
       }
       departmentId = department._id;
     }
-
-    // 2. Create the new user object (without saving yet)
-    const user = new User({
+    const userData = {
       name,
       email,
       password,
       role,
-      enrollment,
-      semester,
       college: college._id,
-      department: departmentId,
-    });
-
-    // 3. Generate a refresh token for the new user
+    };
+    if (role === "student") {
+      userData.enrollment = enrollment;
+      userData.semester = semester;
+      userData.department = departmentId;
+    }
+    const user = new User(userData);
     const refreshToken = user.generateRefreshToken();
-    user.refresh_token = refreshToken; // Assign it to the user object
-
-    // 4. Save the user. The pre-save hook will hash the password, and the refresh token will be saved too.
+    user.refresh_token = refreshToken;
     await user.save();
-
     const createdUser = await User.findById(user._id).select(
       "-password -refresh_token"
     );
-
     if (!createdUser) {
       return res
         .status(500)
@@ -93,18 +89,15 @@ const register = async (req, res) => {
           new Apierror(500, "Something went wrong while registering the user")
         );
     }
-
-    // 5. Send a successful response
     return res
       .status(201)
-      .json(
-        new ApiResponse(
-          201,
-          createdUser,
-          "User registered successfully with a refresh token"
-        )
-      );
+      .json(new ApiResponse(201, createdUser, "User registered successfully"));
   } catch (error) {
+    if (error.code === 11000) {
+      return res
+        .status(409)
+        .json(new Apierror(409, "Email or enrollment number already exists."));
+    }
     console.error("Error registering user:", error);
     return res
       .status(500)

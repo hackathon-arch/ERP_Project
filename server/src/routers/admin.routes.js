@@ -4,6 +4,7 @@ import {
   create_college,
   create_department,
   create_hostel,
+  make_announcement,
 } from "../controllers/admin.controllers.js";
 
 import { create_room } from "../controllers/warden.controllers.js";
@@ -12,5 +13,6 @@ router.post("/create_college", create_college);
 router.post("/create_department", create_department);
 router.post("/create_room", create_room);
 router.post("/create_hostel", create_hostel);
+router.post("/make_announcement", make_announcement);
 
 export default router;
