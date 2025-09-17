@@ -6,6 +6,7 @@ import Room from "../models/room.js";
 import CollegeAnnouncement from "../models/collegeAnnouncements.models.js";
 import { Apierror } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import FeesAnnouncement from "../models/feesAnnouncement.js";
 
 const create_college = async (req, res) => {
   try {
@@ -84,7 +85,6 @@ const create_hostel = async (req, res) => {
     warden: found_warden._id,
     rooms: room_number,
   });
-
   console.log("Hostel created successfully ✅");
   return res.status(201).json({
     message: "Hostel creation successful",
@@ -118,4 +118,44 @@ const make_announcement = async (req, res) => {
     .json({ message: "Announcement created for college successfully" });
 };
 
-export { create_college, create_department, create_hostel, make_announcement };
+const make_fees_announcement = async (req, res) => {
+  const {
+    title,
+    description,
+    amount,
+    due_date,
+    college_name,
+    department_name,
+    semester,
+  } = req.body;
+  const found_college = await College.findOne({ name: college_name });
+  if (!found_college) {
+    return res.status(404).json({ message: "college is not found" });
+  }
+  const found_department = await Department.findOne({ name: department_name });
+  if (!found_department) {
+    return res.status(404).json({ message: "department does not exist" });
+  }
+  const newFeesAnnouncement = await FeesAnnouncement.create({
+    title,
+    description,
+    amount,
+    due_date,
+    college: found_college._id,
+    department: found_department._id,
+    semester,
+  });
+  console.log(newFeesAnnouncement);
+  return res.status(201).json({
+    message: "Fees announcement created",
+    data: newFeesAnnouncement,
+  });
+};
+
+export {
+  create_college,
+  create_department,
+  create_hostel,
+  make_announcement,
+  make_fees_announcement,
+};

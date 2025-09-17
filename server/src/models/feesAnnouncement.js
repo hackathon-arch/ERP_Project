@@ -1,17 +1,20 @@
 import mongoose from "mongoose";
 
-const feeStructureSchema = new mongoose.Schema(
+const fees_announcement = new mongoose.Schema(
   {
     title: {
-      type: String, 
+      type: String,
       required: true,
     },
-    description: String,
+    description: {
+      type: String,
+      required: true,
+    },
     amount: {
       type: Number,
       required: true,
     },
-    dueDate: {
+    due_date: {
       type: Date,
       required: true,
     },
@@ -31,5 +34,5 @@ const feeStructureSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const FeeStructure = mongoose.model("FeeStructure", feeStructureSchema);
-export default FeeStructure;
+const FeesAnnouncement = mongoose.model("FeesAnnouncement", fees_announcement);
+export default FeesAnnouncement;

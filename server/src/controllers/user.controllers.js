@@ -1,3 +1,5 @@
+import Payment from "../models/payment.js";
+import FeesAnnouncement from "../models/feesAnnouncement.js";
 import { User } from "../models/user.js";
 import College from "../models/college.js";
 import Department from "../models/department.js";
@@ -5,6 +7,9 @@ import { Apierror } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { generateReceiptPdf } from "../utils/receiptGenerator.js";
+import { sendEmailWithAttachment } from "../utils/emailService.js";
+import crypto from "crypto";
 
 const register = async (req, res) => {
   try {
@@ -180,4 +185,79 @@ const logout = async (req, res) => {
   }
 };
 
-export { register, login, logout };
+const getMyFeeAnnouncements = async (req, res) => {
+  try {
+    const student = req.user;
+    if (!student || student.role !== "student") {
+      console.log(student);
+      return res.status(403).json(new Apierror(403, "Access denied."));
+    }
+    const announcements = await FeesAnnouncement.find({
+      department: student.department,
+      semester: student.semester,
+    });
+    return res
+      .status(200)
+      .json(new ApiResponse(200, announcements, "Fee announcements fetched."));
+  } catch (error) {
+    return res.status(500).json(new Apierror(500, "Internal Server Error"));
+  }
+};
+
+const recordPayment = async (req, res) => {
+  try {
+    const { announcementId } = req.body;
+    const student = req.user;
+
+    const announcement = await FeesAnnouncement.findById(announcementId);
+    if (!announcement) {
+      return res
+        .status(404)
+        .json(new Apierror(404, "Fees announcement not found."));
+    }
+
+    const existingPayment = await Payment.findOne({
+      student: student._id,
+      feesAnnouncement: announcementId,
+    });
+    if (existingPayment) {
+      return res
+        .status(409)
+        .json(new Apierror(409, "You have already paid this fee."));
+    }
+
+    const transactionId = `txn_${crypto.randomBytes(8).toString("hex")}`;
+
+    const newPayment = await Payment.create({
+      student: student._id,
+      fees_structure: announcementId, 
+      amount_paid: announcement.amount, 
+      transactionId,
+    });
+    const receiptBuffer = await generateReceiptPdf(
+      newPayment,
+      student,
+      announcement
+    );
+    await sendEmailWithAttachment(
+      student.email,
+      `Payment Receipt for ${announcement.title}`,
+      `Dear ${student.name},\n\nPlease find your attached receipt.\n\nTransaction ID: ${newPayment.transactionId}`,
+      receiptBuffer
+    );
+    await User.findByIdAndUpdate(student._id, {
+      $push: { paymentHistory: newPayment._id },
+    });
+
+    return res
+      .status(201)
+      .json(
+        new ApiResponse(201, newPayment, "Payment recorded and receipt sent.")
+      );
+  } catch (error) {
+    console.error("Error in recordPayment:", error);
+    return res.status(500).json(new Apierror(500, "Internal Server Error"));
+  }
+};
+
+export { register, login, logout, getMyFeeAnnouncements, recordPayment };

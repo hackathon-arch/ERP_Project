@@ -53,6 +53,12 @@ const userSchema = new mongoose.Schema(
         return this.role === "student";
       },
     },
+    paymentHistory: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Payment",
+      },
+    ],
     refresh_token: {
       type: String,
     },

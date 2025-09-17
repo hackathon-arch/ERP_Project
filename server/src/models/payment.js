@@ -7,23 +7,19 @@ const paymentSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    fee_structure: {
+    fees_structure: {
       type: mongoose.Schema.ObjectId,
-      ref: "FeeStructure",
+      ref: "FeesAnnouncement",
       required: true,
     },
     amount_paid: {
       type: Number,
       required: true,
     },
-    transaction_id: {
-      type: String,
-      required: true,
-      unique: true,
-    },
     payment_status: {
       type: String,
-      enum: ["success", "failed", "pending"],
+      enum: ["success", "failed"],
+      default: "success",
       required: true,
     },
     payment_date: {
