@@ -21,7 +21,7 @@ const roomSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["available", "allocated", "under_maintenance"], 
+      enum: ["available", "occupied", "maintenance"], // ✅ only these allowed
       default: "available",
     },
     people: [

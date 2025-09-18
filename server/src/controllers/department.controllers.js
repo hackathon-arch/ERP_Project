@@ -43,20 +43,12 @@ const make_department_announcement = async (req, res) => {
       content,
       department: department._id,
       college: college._id,
-      query_person: department.hod, 
+      query_person: department.hod,
       due_date: due_date,
     });
 
     await newAnnouncement.save();
-    return res
-      .status(201)
-      .json(
-        new ApiResponse(
-          201,
-          newAnnouncement,
-          "Department announcement created successfully."
-        )
-      );
+    res.redirect("/dashboard");
   } catch (error) {
     console.error("Error creating department announcement:", error);
     return res

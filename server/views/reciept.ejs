@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Payment Receipt</title>
+  </head>
+  <body>
+    <h1>Payment Receipt</h1>
+    <p><strong>Transaction ID:</strong> <%= payment.transactionId %></p>
+    <p><strong>Student:</strong> <%= payment.student.name %></p>
+    <p><strong>Fee Title:</strong> <%= payment.fees_announcement.title %></p>
+    <p><strong>Amount:</strong> ₹<%= payment.amount %></p>
+    <p><strong>Status:</strong> <%= payment.status %></p>
+    <p><strong>Date:</strong> <%= payment.createdAt.toDateString() %></p>
+  </body>
+</html>

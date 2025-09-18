@@ -19,8 +19,7 @@ const collegeSchema = new mongoose.Schema(
       type: Date,
     },
     query_person: {
-      type: mongoose.Types.ObjectId,
-      ref: "User",
+      type: String,
       required: true,
     },
   },

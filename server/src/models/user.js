@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema(
     hostel_application_status: {
       type: String,
       enum: ["applied", "not_applied", "allocated", "rejected"],
-      default: "not_applied",
+      default: "allocated",
     },
     allocated_room: {
       type: mongoose.Schema.ObjectId,

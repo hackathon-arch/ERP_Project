@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register - Nexus ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+      }
+      .font-title {
+        font-family: "Space+Grotesk", sans-serif;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gradient-to-br from-black via-gray-900 to-green-950 flex items-center justify-center min-h-screen p-4"
+  >
+    <div
+      class="w-full max-w-4xl rounded-xl bg-gradient-to-r from-green-500 via-green-800 to-black p-1 shadow-2xl shadow-green-500/20"
+    >
+      <div class="bg-gray-900 backdrop-blur-xl p-8 rounded-lg">
+        <div class="text-center mb-8">
+          <h2 class="text-3xl font-bold text-green-400 font-title">
+            Create Your Account
+          </h2>
+          <p class="text-gray-400 mt-2">Join the Nexus ERP platform.</p>
+        </div>
+
+        <form method="POST" action="/api/v1/auth/register" class="space-y-5">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+            <div>
+              <label
+                for="name"
+                class="block mb-2 text-sm font-medium text-gray-300"
+                >Full Name</label
+              >
+              <input
+                type="text"
+                id="name"
+                name="name"
+                required
+                class="w-full px-4 py-2 text-gray-200 placeholder:text-gray-500 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/50 transition duration-300"
+                placeholder="e.g., Soumaditya Dey"
+              />
+            </div>
+            <div>
+              <label
+                for="email"
+                class="block mb-2 text-sm font-medium text-gray-300"
+                >Email Address</label
+              >
+              <input
+                type="email"
+                id="email"
+                name="email"
+                required
+                class="w-full px-4 py-2 text-gray-200 placeholder:text-gray-500 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/50 transition duration-300"
+                placeholder="you@example.com"
+              />
+            </div>
+            <div>
+              <label
+                for="password"
+                class="block mb-2 text-sm font-medium text-gray-300"
+                >Password</label
+              >
+              <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                class="w-full px-4 py-2 text-gray-200 placeholder:text-gray-500 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/50 transition duration-300"
+                placeholder="••••••••"
+              />
+            </div>
+            <div>
+              <label
+                for="collegeName"
+                class="block mb-2 text-sm font-medium text-gray-300"
+                >College Name</label
+              >
+              <input
+                type="text"
+                id="collegeName"
+                name="collegeName"
+                required
+                class="w-full px-4 py-2 text-gray-200 placeholder:text-gray-500 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/50 transition duration-300"
+                placeholder="e.g., Krishnanagar Government College"
+              />
+            </div>
+            <div class="md:col-span-2">
+              <label
+                for="role"
+                class="block mb-2 text-sm font-medium text-gray-300"
+                >Your Role</label
+              >
+              <select
+                id="role"
+                name="role"
+                required
+                class="w-full px-4 py-2 text-gray-200 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/50 transition duration-300"
+              >
+                <option value="student">Student</option>
+                <option value="hostel_admin">Warden</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="student-fields">
+            <div class="pt-5 border-t border-gray-800">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-5">
+                <div>
+                  <label
+                    for="enrollment"
+                    class="block mb-2 text-sm font-medium text-gray-300"
+                    >Enrollment Number</label
+                  >
+                  <input
+                    type="text"
+                    id="enrollment"
+                    name="enrollment"
+                    class="w-full px-4 py-2 text-gray-200 placeholder:text-gray-500 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/50 transition duration-300"
+                    placeholder="Enter your enrollment ID"
+                  />
+                </div>
+                <div>
+                  <label
+                    for="semester"
+                    class="block mb-2 text-sm font-medium text-gray-300"
+                    >Semester</label
+                  >
+                  <input
+                    type="number"
+                    id="semester"
+                    name="semester"
+                    class="w-full px-4 py-2 text-gray-200 placeholder:text-gray-500 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/50 transition duration-300"
+                    placeholder="e.g., 5"
+                  />
+                </div>
+                <div>
+                  <label
+                    for="departmentName"
+                    class="block mb-2 text-sm font-medium text-gray-300"
+                    >Department Name</label
+                  >
+                  <input
+                    type="text"
+                    id="departmentName"
+                    name="departmentName"
+                    class="w-full px-4 py-2 text-gray-200 placeholder:text-gray-500 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/50 transition duration-300"
+                    placeholder="e.g., Computer Science"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="w-full bg-gradient-to-r from-green-600 to-green-800 text-white font-bold py-3 px-4 rounded-lg hover:from-green-700 hover:to-green-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-green-500 transition-all duration-300 ease-in-out transform hover:-translate-y-1"
+          >
+            Register
+          </button>
+
+          <p class="text-sm text-center text-gray-400">
+            Already have an account?
+            <a
+              href="/api/v1/auth/login"
+              class="font-medium text-green-400 hover:underline"
+              >Sign in</a
+            >
+          </p>
+        </form>
+      </div>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const roleSelect = document.getElementById("role");
+        const studentFields = document.getElementById("student-fields");
+
+        function toggleStudentFields() {
+          if (roleSelect.value === "student") {
+            studentFields.style.display = "block";
+            studentFields
+              .querySelectorAll("input")
+              .forEach((input) => (input.required = true));
+          } else {
+            studentFields.style.display = "none";
+            studentFields
+              .querySelectorAll("input")
+              .forEach((input) => (input.required = false));
+          }
+        }
+
+        // Set initial state on page load
+        toggleStudentFields();
+
+        // Add listener for changes
+        roleSelect.addEventListener("change", toggleStudentFields);
+      });
+    </script>
+  </body>
+</html>

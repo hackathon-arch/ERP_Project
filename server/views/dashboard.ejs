@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Nexus ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+      }
+      .font-title {
+        font-family: "Space+Grotesk", sans-serif;
+      }
+      /* Spotlight Card Effect */
+      .spotlight-card {
+        position: relative;
+        overflow: hidden;
+      }
+      .spotlight-card:before {
+        content: "";
+        position: absolute;
+        left: var(--x, 50%);
+        top: var(--y, 50%);
+        transform: translate(-50%, -50%);
+        background: radial-gradient(
+          circle at center,
+          rgba(34, 211, 238, 0.15),
+          transparent 40%
+        );
+        width: 300px;
+        height: 300px;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      .spotlight-card:hover:before {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gradient-to-br from-black via-gray-900 to-green-950 text-gray-300 font-sans"
+  >
+    <div class="flex">
+      <aside
+        class="w-64 min-h-screen bg-gray-900/70 overflow-y-hidden backdrop-blur-xl p-4 flex-col hidden lg:flex"
+      >
+        <a href="/" class="text-center mb-10">
+          <i class="fas fa-network-wired text-green-400 text-3xl"></i>
+          <h1 class="text-2xl font-bold text-green-400 mt-2 font-title">
+            Nexus.ERP
+          </h1>
+        </a>
+        <nav class="flex-grow">
+          <ul class="space-y-2">
+            <li>
+              <a
+                href="/dashboard"
+                class="flex items-center p-3 mb-2 bg-green-950/50 rounded-lg text-white"
+              >
+                <i class="fas fa-tachometer-alt w-6 text-center"></i>
+                <span class="ml-4">Dashboard</span>
+              </a>
+            </li>
+            <% if (user.role === 'student') { %>
+            <li>
+              <a
+                href="/api/v1/auth/general_announcements"
+                class="flex items-center p-3 mt-4 bg-green-950/50 rounded-lg text-white"
+              >
+                <i class="fas fa-building w-6 text-center"></i>
+                <span class="ml-4">announcements</span>
+              </a>
+            </li>
+            <li>
+              <a
+                href="/api/v1/auth/fees_announcements"
+                class="flex items-center p-3 mt-4 bg-green-950/50 rounded-lg text-white"
+              >
+                <i class="fas fa-bullhorn w-6 text-center"></i>
+                <span class="ml-4">Fees announcement</span>
+              </a>
+            </li>
+            <li>
+              <a
+                href="/api/v1/auth/department_announcements"
+                class="flex items-center p-3 mt-4 bg-green-950/50 rounded-lg text-white"
+              >
+                <i class="fas fa-bullhorn w-6 text-center"></i>
+                <span class="ml-4">dept. announcement</span>
+              </a>
+            </li>
+            <li>
+              <a
+                href="/api/v1/auth/hostel_announcements"
+                class="flex items-center p-3 mt-4 bg-green-950/50 rounded-lg text-white"
+              >
+                <i class="fas fa-bullhorn w-6 text-center"></i>
+                <span class="ml-4">hostel announcement</span>
+              </a>
+            </li>
+            <li>
+              <a
+                href="/api/v1/auth/my_fees"
+                class="flex items-center p-3 mb-2 bg-green-950/50 rounded-lg text-white"
+              >
+                <i class="fas fa-tachometer-alt w-6 text-center"></i>
+                <span class="ml-4">Payment status</span>
+              </a>
+            </li>
+            <% } %>
+            <!-- <li>
+              <a
+                href="/api/v1/auth/apply"
+                class="flex items-center p-3 mt-4 bg-green-950/50 rounded-lg text-white"
+              >
+                <i class="fas fa-bullhorn w-6 text-center"></i>
+                <button type="submit" class="ml-4">apply for room</button>
+              </a>
+            </li> -->
+            <li>
+              <a
+                href="/api/v1/auth/payment_history"
+                class="flex items-center p-3 mt-4 bg-green-950/50 rounded-lg text-white"
+              >
+                <i class="fas fa-bullhorn w-6 text-center"></i>
+                <span class="ml-4">Payment History</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <div class="pt-4 border-t border-gray-700">
+          <div class="flex items-center">
+            <div
+              class="w-12 h-12 rounded-full bg-green-800 flex items-center justify-center font-bold text-xl text-white"
+            >
+              <%= user.name.charAt(0).toUpperCase() %>
+            </div>
+            <div class="ml-4">
+              <p class="font-bold text-white"><%= user.name %></p>
+              <p class="text-sm text-gray-400 capitalize">
+                <%= user.role.replace('_', ' ') %>
+              </p>
+            </div>
+          </div>
+          <form method="POST" action="/api/v1/auth/logout" class="mt-4">
+            <button
+              class="w-full flex items-center justify-center p-2 rounded-lg bg-red-800/50 hover:bg-red-700/50 transition-colors"
+            >
+              <i class="fas fa-sign-out-alt mr-2"></i>
+              Logout
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <main class="flex-1 p-4 lg:p-8">
+        <header class="mb-8">
+          <h1 class="text-3xl font-bold text-white font-title">Dashboard</h1>
+          <p class="text-gray-400">Welcome back, <%= user.name %>!</p>
+        </header>
+
+        <!-- =============================================================== -->
+        <!-- COLLEGE ADMIN DASHBOARD -->
+        <!-- =============================================================== -->
+        <% if (user.role === 'college_admin') { %>
+        <div class="space-y-8">
+          <div class="bg-gray-900/60 p-6 rounded-lg border border-gray-700">
+            <h2 class="text-xl font-bold text-green-400 mb-4 font-title">
+              Institutional Management
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <a
+                href="/admin/create_department"
+                class="flex flex-col items-center justify-center text-center bg-gray-800/50 p-6 rounded-lg hover:bg-gray-700/50 transition-colors"
+                ><i class="fas fa-building text-3xl mb-2"></i
+                ><span>Create Department</span></a
+              >
+              <a
+                href="/admin/create_hostel"
+                class="flex flex-col items-center justify-center text-center bg-gray-800/50 p-6 rounded-lg hover:bg-gray-700/50 transition-colors"
+                ><i class="fas fa-hotel text-3xl mb-2"></i
+                ><span>Create Hostel</span></a
+              >
+            </div>
+          </div>
+          <div class="bg-gray-900/60 p-6 rounded-lg border border-gray-700">
+            <h2 class="text-xl font-bold text-green-400 mb-4 font-title">
+              Broadcast Announcements
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <a
+                href="/admin/make_announcement"
+                class="flex flex-col items-center justify-center text-center bg-gray-800/50 p-4 rounded-lg hover:bg-gray-700/50 transition-colors"
+                ><i class="fas fa-bullhorn text-2xl mb-2"></i
+                ><span>General</span></a
+              >
+              <a
+                href="/admin/make_fees_announcement"
+                class="flex flex-col items-center justify-center text-center bg-gray-800/50 p-4 rounded-lg hover:bg-gray-700/50 transition-colors"
+                ><i class="fas fa-file-invoice-dollar text-2xl mb-2"></i
+                ><span>Fees</span></a
+              >
+              <a
+                href="/admin/make_department_announcement"
+                class="flex flex-col items-center justify-center text-center bg-gray-800/50 p-4 rounded-lg hover:bg-gray-700/50 transition-colors"
+                ><i class="fas fa-sitemap text-2xl mb-2"></i
+                ><span>Departmental</span></a
+              >
+            </div>
+          </div>
+        </div>
+        <% } %>
+
+        <!-- =============================================================== -->
+        <!-- HOSTEL ADMIN (WARDEN) DASHBOARD -->
+        <!-- =============================================================== -->
+        <% if (user.role === 'hostel_admin') { %>
+        <div class="space-y-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div
+              class="rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 p-1"
+            >
+              <div
+                class="bg-gray-900 p-6 rounded-lg h-full flex flex-col justify-between"
+              >
+                <div>
+                  <p class="text-sm text-gray-400">Hostel Occupancy</p>
+                  <p class="text-4xl font-bold mt-1">450 / 500</p>
+                </div>
+                <i
+                  class="fas fa-bed text-3xl text-green-400 self-end opacity-20"
+                ></i>
+              </div>
+            </div>
+            <div
+              class="rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 p-1"
+            >
+              <div
+                class="bg-gray-900 p-6 rounded-lg h-full flex flex-col justify-between"
+              >
+                <div>
+                  <p class="text-sm text-gray-400">Maintenance Requests</p>
+                  <p class="text-4xl font-bold mt-1">5</p>
+                </div>
+                <i
+                  class="fas fa-tools text-3xl text-green-400 self-end opacity-20"
+                ></i>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gray-900/60 p-6 rounded-lg border border-gray-700">
+            <h2 class="text-xl font-bold text-green-400 mb-4 font-title">
+              Warden Actions
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <a
+                href="/warden/create_room"
+                class="spotlight-card group bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-cyan-400 transition-all duration-300 transform hover:-translate-y-1"
+              >
+                <i class="fas fa-door-closed text-4xl text-cyan-400 mb-4"></i>
+                <h3 class="text-xl font-semibold text-white mb-1">
+                  Create Room
+                </h3>
+                <p class="text-gray-400 text-sm">
+                  Add a new room to the hostel, specifying its capacity and
+                  number.
+                </p>
+              </a>
+              <a
+                href="/warden/make_hostel_announcement"
+                class="spotlight-card group bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-cyan-400 transition-all duration-300 transform hover:-translate-y-1"
+              >
+                <i class="fas fa-bullhorn text-4xl text-cyan-400 mb-4"></i>
+                <h3 class="text-xl font-semibold text-white mb-1">
+                  Make Announcement
+                </h3>
+                <p class="text-gray-400 text-sm">
+                  Broadcast important notices to all residents of the hostel.
+                </p>
+              </a>
+            </div>
+          </div>
+        </div>
+        <% } %>
+
+        <!-- =============================================================== -->
+        <!-- STUDENT DASHBOARD -->
+        <!-- =============================================================== -->
+        <% if (user.role === 'student') { %>
+        <div class="space-y-8">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div
+              class="rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 p-1"
+            >
+              <div
+                class="bg-gray-900 p-6 rounded-lg h-full flex flex-col justify-between"
+              >
+                <div>
+                  <p class="text-sm text-gray-400">Pending Fees</p>
+                  <p class="text-4xl font-bold mt-1">₹5,200</p>
+                </div>
+                <i
+                  class="fas fa-dollar-sign text-3xl text-green-400 self-end opacity-20"
+                ></i>
+              </div>
+            </div>
+            <div
+              class="rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 p-1"
+            >
+              <div
+                class="bg-gray-900 p-6 rounded-lg h-full flex flex-col justify-between"
+              >
+                <div>
+                  <p class="text-sm text-gray-400">Attendance</p>
+                  <p class="text-4xl font-bold mt-1">92%</p>
+                </div>
+                <i
+                  class="fas fa-calendar-check text-3xl text-green-400 self-end opacity-20"
+                ></i>
+              </div>
+            </div>
+            <div
+              class="rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 p-1"
+            >
+              <div
+                class="bg-gray-900 p-6 rounded-lg h-full flex flex-col justify-between"
+              >
+                <div>
+                  <p class="text-sm text-gray-400">Hostel Status</p>
+                  <p class="text-4xl font-bold mt-1">Allocated</p>
+                </div>
+                <i
+                  class="fas fa-hotel text-3xl text-green-400 self-end opacity-20"
+                ></i>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gray-900/60 p-6 rounded-lg border border-gray-700">
+            <h2 class="text-xl font-bold text-green-400 mb-4 font-title">
+              Student Portal
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <a
+                href="/student/profile"
+                class="spotlight-card group bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-cyan-400 transition-all duration-300 transform hover:-translate-y-1"
+              >
+                <i class="fas fa-user-circle text-4xl text-cyan-400 mb-4"></i>
+                <h3 class="text-xl font-semibold text-white mb-1">
+                  View Profile
+                </h3>
+                <p class="text-gray-400 text-sm">
+                  Check your personal details and academic information.
+                </p>
+              </a>
+              <a
+                href="/api/v1/auth/fees_announcements"
+                class="spotlight-card group bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-cyan-400 transition-all duration-300 transform hover:-translate-y-1"
+              >
+                <i
+                  class="fas fa-file-invoice-dollar text-4xl text-cyan-400 mb-4"
+                ></i>
+                <h3 class="text-xl font-semibold text-white mb-1">
+                  Fee Notices
+                </h3>
+                <p class="text-gray-400 text-sm">
+                  View all fee-related announcements and deadlines.
+                </p>
+              </a>
+              <a
+                href="/student/payment"
+                class="spotlight-card group bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-cyan-400 transition-all duration-300 transform hover:-translate-y-1"
+              >
+                <i class="fas fa-credit-card text-4xl text-cyan-400 mb-4"></i>
+                <h3 class="text-xl font-semibold text-white mb-1">
+                  Make a Payment
+                </h3>
+                <p class="text-gray-400 text-sm">
+                  Securely pay your semester, hostel, or other fees online.
+                </p>
+              </a>
+            </div>
+          </div>
+        </div>
+        <% } %>
+      </main>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Spotlight Card Effect
+        document.querySelectorAll(".spotlight-card").forEach((card) => {
+          card.addEventListener("mousemove", (e) => {
+            const rect = card.getBoundingClientRect();
+            card.style.setProperty("--x", `${e.clientX - rect.left}px`);
+            card.style.setProperty("--y", `${e.clientY - rect.top}px`);
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

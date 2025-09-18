@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Hostel Announcement - Nexus ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Inter:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #111111; /* A deeper charcoal black */
+        color: #a1a1aa; /* Softer gray for text */
+      }
+      .font-title {
+        font-family: "Sora", sans-serif;
+      }
+
+      #preloader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #111111;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.5s ease-out;
+      }
+      .loader {
+        width: 48px;
+        height: 48px;
+        border: 3px solid #1f2937;
+        border-top: 3px solid #70ffd9;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #18181b;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #3f3f46;
+        border-radius: 4px;
+      }
+      .custom-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: #3f3f46 #18181b;
+      }
+
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(0.8) brightness(1.5) sepia(1) hue-rotate(120deg);
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body class="opacity-0 transition-opacity duration-500">
+    <div id="preloader"><div class="loader"></div></div>
+
+    <div class="min-h-screen flex items-center justify-center p-4">
+      <div class="w-full max-w-4xl">
+        <div
+          class="bg-black/30 backdrop-blur-xl border border-gray-800 rounded-2xl p-8"
+        >
+          <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-white font-title">
+              Create Hostel Announcement
+            </h1>
+            <p class="text-gray-500 mt-2">
+              Broadcast a new notice for a specific hostel.
+            </p>
+          </div>
+
+          <form
+            method="POST"
+            action="/warden/make_hostel_announcement"
+            class="space-y-6"
+          >
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label
+                  for="title"
+                  class="block mb-2 text-sm font-medium text-gray-400"
+                  >Announcement Title</label
+                >
+                <input
+                  type="text"
+                  id="title"
+                  name="title"
+                  required
+                  class="w-full px-4 py-2 text-gray-200 placeholder:text-gray-500 bg-gray-900/50 border border-gray-700 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/50"
+                  placeholder="e.g., Water Supply Disruption"
+                />
+              </div>
+              <!-- Searchable Dropdown for College -->
+              <div>
+                <label
+                  for="college-search"
+                  class="block mb-2 text-sm font-medium text-gray-400"
+                  >Select College</label
+                >
+                <div class="relative" id="college-dropdown-container">
+                  <input
+                    type="text"
+                    id="college-search"
+                    readonly
+                    class="w-full px-4 py-2 text-gray-200 placeholder:text-gray-500 bg-gray-900/50 border border-gray-700 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/50 cursor-pointer"
+                    placeholder="Search for a college..."
+                  />
+                  <input
+                    type="hidden"
+                    name="collegeName"
+                    id="college-value"
+                    required
+                  />
+                  <div
+                    id="college-options"
+                    class="hidden absolute z-20 w-full mt-1 bg-zinc-900 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto custom-scrollbar options-panel"
+                  >
+                    <div class="p-2 sticky top-0 bg-zinc-900">
+                      <input
+                        type="text"
+                        id="college-search-input"
+                        class="w-full px-3 py-2 text-gray-200 placeholder:text-gray-500 bg-gray-800 border-gray-600 rounded-md focus:outline-none"
+                        placeholder="Type to filter..."
+                      />
+                    </div>
+                    <div id="college-list">
+                      <% colleges.forEach(college => { %>
+                      <div
+                        class="px-4 py-2 text-gray-300 hover:bg-emerald-800/50 cursor-pointer option-item"
+                        data-value="<%= college.name %>"
+                        data-name="<%= college.name %>"
+                      >
+                        <%= college.name %>
+                      </div>
+                      <% }) %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Searchable Dropdown for Hostel -->
+              <div>
+                <label
+                  for="hostel-search"
+                  class="block mb-2 text-sm font-medium text-gray-400"
+                  >Select Hostel</label
+                >
+                <div class="relative" id="hostel-dropdown-container">
+                  <input
+                    type="text"
+                    id="hostel-search"
+                    readonly
+                    class="w-full px-4 py-2 text-gray-200 placeholder:text-gray-500 bg-gray-900/50 border border-gray-700 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/50 cursor-pointer"
+                    placeholder="Search for a hostel..."
+                  />
+                  <input
+                    type="hidden"
+                    name="hostelName"
+                    id="hostel-value"
+                    required
+                  />
+                  <div
+                    id="hostel-options"
+                    class="hidden absolute z-20 w-full mt-1 bg-zinc-900 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto custom-scrollbar options-panel"
+                  >
+                    <div class="p-2 sticky top-0 bg-zinc-900">
+                      <input
+                        type="text"
+                        id="hostel-search-input"
+                        class="w-full px-3 py-2 text-gray-200 placeholder:text-gray-500 bg-gray-800 border-gray-600 rounded-md focus:outline-none"
+                        placeholder="Type to filter..."
+                      />
+                    </div>
+                    <div id="hostel-list">
+                      <% hostels.forEach(hostel => { %>
+                      <div
+                        class="px-4 py-2 text-gray-300 hover:bg-emerald-800/50 cursor-pointer option-item"
+                        data-value="<%= hostel.name %>"
+                        data-name="<%= hostel.name %>"
+                      >
+                        <%= hostel.name %>
+                      </div>
+                      <% }) %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Searchable Dropdown for Query Person -->
+              <!-- Searchable Dropdown for Query Person -->
+              <div>
+                <label
+                  for="person-search"
+                  class="block mb-2 text-sm font-medium text-gray-400"
+                  >Select Query Person</label
+                >
+                <div class="relative" id="person-dropdown-container">
+                  <input
+                    type="text"
+                    id="person-search"
+                    readonly
+                    class="w-full px-4 py-2 text-gray-200 placeholder:text-gray-500 bg-gray-900/50 border border-gray-700 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/50 cursor-pointer"
+                    placeholder="Search for a person..."
+                  />
+                  <input
+                    type="hidden"
+                    name="queryPersonName"
+                    id="person-value"
+                    required
+                  />
+                  <div
+                    id="person-options"
+                    class="hidden absolute z-20 w-full mt-1 bg-zinc-900 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto custom-scrollbar options-panel"
+                  >
+                    <div class="p-2 sticky top-0 bg-zinc-900">
+                      <input
+                        type="text"
+                        id="person-search-input"
+                        class="w-full px-3 py-2 text-gray-200 placeholder:text-gray-500 bg-gray-800 border-gray-600 rounded-md focus:outline-none"
+                        placeholder="Type to filter..."
+                      />
+                    </div>
+                    <div id="person-list">
+                      <% students.forEach(student => { %>
+                      <div
+                        class="px-4 py-2 text-gray-300 hover:bg-emerald-800/50 cursor-pointer option-item"
+                        data-value="<%= student.name %>"
+                        data-name="<%= student.name %>"
+                      >
+                        <%= student.name %>
+                      </div>
+                      <% }) %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label
+                for="content"
+                class="block mb-2 text-sm font-medium text-gray-400"
+                >Content</label
+              >
+              <textarea
+                id="content"
+                name="content"
+                rows="4"
+                required
+                class="w-full px-4 py-2 text-gray-200 placeholder:text-gray-500 bg-gray-900/50 border border-gray-700 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/50"
+                placeholder="Enter the full details of the announcement..."
+              ></textarea>
+            </div>
+            <div>
+              <label
+                for="due_date"
+                class="block mb-2 text-sm font-medium text-gray-400"
+                >Due Date (Optional)</label
+              >
+              <input
+                type="date"
+                id="due_date"
+                name="due_date"
+                class="w-full px-4 py-2 text-gray-200 bg-gray-900/50 border border-gray-700 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/50"
+              />
+            </div>
+
+            <div class="pt-4 flex items-center justify-between">
+              <a
+                href="/dashboard"
+                class="text-sm text-gray-400 hover:text-white transition-colors"
+              >
+                <i class="fas fa-arrow-left mr-1"></i>
+                Back to Dashboard
+              </a>
+              <button
+                type="submit"
+                class="bg-emerald-500 text-black font-bold py-3 px-8 rounded-lg hover:bg-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/50 transition-all duration-300 ease-in-out transform hover:scale-105"
+                style="background-color: #70ffd9"
+              >
+                Publish Announcement
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Pre-loader
+        const preloader = document.getElementById("preloader");
+        const body = document.querySelector("body");
+        window.addEventListener("load", () => {
+          preloader.style.opacity = "0";
+          body.style.opacity = "1";
+          setTimeout(() => {
+            preloader.style.display = "none";
+          }, 500);
+        });
+
+        function setupSearchableDropdown(idPrefix) {
+          const container = document.getElementById(
+            `${idPrefix}-dropdown-container`
+          );
+          if (!container) return;
+
+          const searchDisplay = document.getElementById(`${idPrefix}-search`);
+          const hiddenInput = document.getElementById(`${idPrefix}-value`);
+          const optionsPanel = document.getElementById(`${idPrefix}-options`);
+          const searchInput = document.getElementById(
+            `${idPrefix}-search-input`
+          );
+          const list = document.getElementById(`${idPrefix}-list`);
+          const allOptions = Array.from(list.querySelectorAll(".option-item"));
+
+          searchDisplay.addEventListener("click", (event) => {
+            event.stopPropagation();
+            document.querySelectorAll(".options-panel").forEach((panel) => {
+              if (panel.id !== optionsPanel.id) panel.classList.add("hidden");
+            });
+            optionsPanel.classList.toggle("hidden");
+          });
+
+          list.addEventListener("click", (event) => {
+            if (event.target.classList.contains("option-item")) {
+              const option = event.target;
+              searchDisplay.value = option.dataset.name;
+              hiddenInput.value = option.dataset.value;
+              optionsPanel.classList.add("hidden");
+              searchInput.value = "";
+              allOptions.forEach((opt) => (opt.style.display = "block"));
+            }
+          });
+
+          searchInput.addEventListener("input", () => {
+            const filter = searchInput.value.toLowerCase();
+            allOptions.forEach((option) => {
+              const text = option.textContent.toLowerCase();
+              option.style.display = text.includes(filter) ? "block" : "none";
+            });
+          });
+
+          searchInput.addEventListener("click", (e) => e.stopPropagation());
+        }
+
+        setupSearchableDropdown("college");
+        setupSearchableDropdown("hostel");
+        setupSearchableDropdown("person");
+
+        document.addEventListener("click", () => {
+          document.querySelectorAll(".options-panel").forEach((panel) => {
+            panel.classList.add("hidden");
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -3,32 +3,35 @@ import mongoose from "mongoose";
 const paymentSchema = new mongoose.Schema(
   {
     student: {
-      type: mongoose.Schema.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    fees_structure: {
-      type: mongoose.Schema.ObjectId,
+    fees_announcement: {
+      type: mongoose.Schema.Types.ObjectId,
       ref: "FeesAnnouncement",
       required: true,
     },
-    amount_paid: {
+    amount: {
       type: Number,
       required: true,
     },
-    payment_status: {
+    status: {
       type: String,
-      enum: ["success", "failed"],
-      default: "success",
-      required: true,
+      enum: ["completed", "pending", "failed"],
+      default: "completed",
     },
-    payment_date: {
-      type: Date,
-      default: Date.now,
+    receipt_url: {
+      type: String,
+    },
+    transactionId: {
+      type: String,
+      required: true,
+      unique: true,
     },
   },
   { timestamps: true }
 );
 
 const Payment = mongoose.model("Payment", paymentSchema);
-export default Payment;
+export { Payment };

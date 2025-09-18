@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Hostel Room - Nexus ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Inter:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #111111;
+        color: #a1a1aa;
+      }
+      .font-title {
+        font-family: "Sora", sans-serif;
+      }
+
+      #preloader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #111111;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.5s ease-out;
+      }
+      .loader {
+        width: 48px;
+        height: 48px;
+        border: 3px solid #1f2937;
+        border-top: 3px solid #70ffd9;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #18181b;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #3f3f46;
+        border-radius: 4px;
+      }
+      .custom-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: #3f3f46 #18181b;
+      }
+    </style>
+  </head>
+  <body class="opacity-0 transition-opacity duration-500">
+    <div id="preloader"><div class="loader"></div></div>
+
+    <div class="min-h-screen flex items-center justify-center p-4">
+      <div class="w-full max-w-3xl">
+        <div
+          class="bg-black/30 backdrop-blur-xl border border-gray-800 rounded-2xl p-8"
+        >
+          <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-white font-title">
+              Create & Allocate Hostel Room
+            </h1>
+            <p class="text-gray-500 mt-2">
+              Define a new room and assign students to it.
+            </p>
+          </div>
+
+          <form method="POST" action="/warden/create_room" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label
+                  for="number"
+                  class="block mb-2 text-sm font-medium text-gray-400"
+                  >Room Number</label
+                >
+                <input
+                  type="text"
+                  id="number"
+                  name="number"
+                  required
+                  class="w-full px-4 py-2 text-gray-200 placeholder:text-gray-500 bg-gray-900/50 border border-gray-700 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/50"
+                  placeholder="e.g., A-101"
+                />
+              </div>
+              <div>
+                <label
+                  for="floor"
+                  class="block mb-2 text-sm font-medium text-gray-400"
+                  >Floor</label
+                >
+                <input
+                  type="number"
+                  id="floor"
+                  name="floor"
+                  required
+                  class="w-full px-4 py-2 text-gray-200 placeholder:text-gray-500 bg-gray-900/50 border border-gray-700 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/50"
+                  placeholder="e.g., 1"
+                />
+              </div>
+              <div>
+                <label
+                  for="capacity"
+                  class="block mb-2 text-sm font-medium text-gray-400"
+                  >Capacity</label
+                >
+                <input
+                  type="number"
+                  id="capacity"
+                  name="capacity"
+                  required
+                  class="w-full px-4 py-2 text-gray-200 placeholder:text-gray-500 bg-gray-900/50 border border-gray-700 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/50"
+                  placeholder="e.g., 3"
+                />
+              </div>
+            </div>
+            <div>
+              <label
+                for="status"
+                class="block mb-2 text-sm font-medium text-gray-400"
+                >Room Status</label
+              >
+              <select
+                id="status"
+                name="status"
+                required
+                class="w-full px-4 py-2 text-gray-200 bg-gray-900/50 border border-gray-700 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/50"
+              >
+                <option value="available">Available</option>
+                <option value="occupied">Occupied</option>
+                <option value="maintenance">Under Maintenance</option>
+              </select>
+            </div>
+
+            <!-- Multi-select searchable dropdown for students -->
+            <div>
+              <label class="block mb-2 text-sm font-medium text-gray-400"
+                >Assign Students to Room</label
+              >
+              <div class="relative" id="student-multiselect-container">
+                <div
+                  id="selected-students-pills"
+                  class="flex flex-wrap gap-2 p-2 bg-gray-900/50 border border-gray-700 rounded-lg mb-2 min-h-[44px]"
+                >
+                  <!-- Pills will be inserted here by JS -->
+                </div>
+                <input
+                  type="text"
+                  id="student-search-input"
+                  class="w-full px-4 py-2 text-gray-200 placeholder:text-gray-500 bg-gray-900/50 border border-gray-700 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/50"
+                  placeholder="Search for students to add..."
+                />
+                <input
+                  type="hidden"
+                  name="people_names"
+                  id="student_names_value"
+                />
+
+                <div
+                  id="student-options"
+                  class="hidden absolute z-10 w-full mt-1 bg-zinc-900 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto custom-scrollbar"
+                >
+                  <% students.forEach(student => { %>
+                  <div
+                    class="px-4 py-2 text-gray-300 hover:bg-emerald-800/50 cursor-pointer student-option"
+                    data-name="<%= student.name %>"
+                  >
+                    <%= student.name %> (<%= student.enrollment %>)
+                  </div>
+                  <% }) %>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-4 flex items-center justify-between">
+              <a
+                href="/dashboard"
+                class="text-sm text-gray-400 hover:text-white transition-colors"
+              >
+                <i class="fas fa-arrow-left mr-1"></i>
+                Back to Dashboard
+              </a>
+              <button
+                type="submit"
+                class="bg-emerald-500 text-black font-bold py-3 px-8 rounded-lg hover:bg-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/50 transition-all duration-300 ease-in-out transform hover:scale-105"
+                style="background-color: #70ffd9"
+              >
+                Create and Allocate Room
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Pre-loader
+        const preloader = document.getElementById("preloader");
+        const body = document.querySelector("body");
+        window.addEventListener("load", () => {
+          preloader.style.opacity = "0";
+          body.style.opacity = "1";
+          setTimeout(() => {
+            preloader.style.display = "none";
+          }, 500);
+        });
+
+        // Multi-select dropdown logic
+        const container = document.getElementById(
+          "student-multiselect-container"
+        );
+        const searchInput = document.getElementById("student-search-input");
+        const optionsPanel = document.getElementById("student-options");
+        const pillsContainer = document.getElementById(
+          "selected-students-pills"
+        );
+        const hiddenInput = document.getElementById("student_names_value");
+        const allOptions = Array.from(
+          document.querySelectorAll(".student-option")
+        );
+        let selectedStudentNames = [];
+
+        function updateHiddenInput() {
+          hiddenInput.value = JSON.stringify(selectedStudentNames);
+        }
+
+        function createPill(name) {
+          const pill = document.createElement("div");
+          pill.className =
+            "flex items-center bg-emerald-900/50 text-emerald-300 text-sm font-semibold px-3 py-1 rounded-full";
+          pill.dataset.name = name;
+          pill.innerHTML = `
+                    <span>${name}</span>
+                    <button type="button" class="ml-2 text-emerald-400 hover:text-white focus:outline-none remove-pill-btn">
+                    <i class="fas fa-times-circle"></i>
+                    </button>
+                `;
+          pillsContainer.appendChild(pill);
+        }
+
+        searchInput.addEventListener("input", () => {
+          const filter = searchInput.value.toLowerCase();
+          optionsPanel.classList.remove("hidden");
+          allOptions.forEach((option) => {
+            const isSelected = selectedStudentNames.includes(
+              option.dataset.name
+            );
+            const matchesFilter = option.textContent
+              .toLowerCase()
+              .includes(filter);
+            option.style.display =
+              !isSelected && matchesFilter ? "block" : "none";
+          });
+        });
+
+        searchInput.addEventListener("focus", () => {
+          optionsPanel.classList.remove("hidden");
+        });
+
+        optionsPanel.addEventListener("click", (e) => {
+          if (e.target.classList.contains("student-option")) {
+            const name = e.target.dataset.name;
+            if (!selectedStudentNames.includes(name)) {
+              selectedStudentNames.push(name);
+              createPill(name);
+              updateHiddenInput();
+              e.target.style.display = "none";
+            }
+            searchInput.value = "";
+            optionsPanel.classList.add("hidden");
+          }
+        });
+
+        pillsContainer.addEventListener("click", (e) => {
+          const removeBtn = e.target.closest(".remove-pill-btn");
+          if (removeBtn) {
+            const pill = removeBtn.closest("[data-name]");
+            const nameToRemove = pill.dataset.name;
+            selectedStudentNames = selectedStudentNames.filter(
+              (name) => name !== nameToRemove
+            );
+            pill.remove();
+            updateHiddenInput();
+            const optionToShow = allOptions.find(
+              (opt) => opt.dataset.name === nameToRemove
+            );
+            if (optionToShow) optionToShow.style.display = "block";
+          }
+        });
+
+        document.addEventListener("click", (e) => {
+          if (!container.contains(e.target)) {
+            optionsPanel.classList.add("hidden");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

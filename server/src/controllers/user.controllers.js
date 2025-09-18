@@ -1,4 +1,4 @@
-import Payment from "../models/payment.js";
+import { Payment } from "../models/payment.js";
 import FeesAnnouncement from "../models/feesAnnouncement.js";
 import { User } from "../models/user.js";
 import College from "../models/college.js";
@@ -82,6 +82,7 @@ const register = async (req, res) => {
     }
     const user = new User(userData);
     const refreshToken = user.generateRefreshToken();
+    const accessToken = user.generateAccessToken();
     user.refresh_token = refreshToken;
     await user.save();
     const createdUser = await User.findById(user._id).select(
@@ -94,9 +95,20 @@ const register = async (req, res) => {
           new Apierror(500, "Something went wrong while registering the user")
         );
     }
-    return res
-      .status(201)
-      .json(new ApiResponse(201, createdUser, "User registered successfully"));
+    res
+      .cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 1000 * 60 * 60 * 7,
+      })
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 1000 * 60 * 60 * 24 * 30,
+      })
+      .redirect("/dashboard");
   } catch (error) {
     if (error.code === 11000) {
       return res
@@ -104,9 +116,6 @@ const register = async (req, res) => {
         .json(new Apierror(409, "Email or enrollment number already exists."));
     }
     console.error("Error registering user:", error);
-    return res
-      .status(500)
-      .json(new Apierror(500, "Internal Server Error", error.message));
   }
 };
 
@@ -142,42 +151,16 @@ const login = async (req, res) => {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
+      maxAge: 1000 * 60 * 60 * 24, // 1 day, adjust if needed
     };
 
-    return res
-      .status(200)
+    // Set tokens as cookies
+    res
       .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", refreshToken, options)
-      .json(new ApiResponse(200, { user }, "Login successful"));
-  } catch (error) {
-    return res
-      .status(500)
-      .json(new Apierror(500, "Internal Server Error", error.message));
-  }
-};
+      .cookie("refreshToken", refreshToken, options);
 
-const logout = async (req, res) => {
-  try {
-    await User.findByIdAndUpdate(
-      req.user._id,
-      {
-        $set: { refresh_token: null },
-      },
-      {
-        new: true,
-      }
-    );
-    const options = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-    };
-    return res
-      .status(200)
-      .clearCookie("accessToken", options)
-      .clearCookie("refreshToken", options)
-      .json(new ApiResponse(200, {}, "User logged out successfully"));
+    // Redirect to dashboard
+    res.redirect("/dashboard");
   } catch (error) {
     return res
       .status(500)
@@ -206,58 +189,106 @@ const getMyFeeAnnouncements = async (req, res) => {
 
 const recordPayment = async (req, res) => {
   try {
-    const { announcementId } = req.body;
+    const { announcementId } = req.params; // coming from /record/:announcementId
     const student = req.user;
 
-    const announcement = await FeesAnnouncement.findById(announcementId);
-    if (!announcement) {
-      return res
-        .status(404)
-        .json(new Apierror(404, "Fees announcement not found."));
+    if (!student) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
+    // 1. Find announcement
+    const announcement = await FeesAnnouncement.findById(announcementId);
+    if (!announcement) {
+      return res.status(404).json({ message: "Fees announcement not found." });
+    }
+
+    // 2. Prevent duplicate payments
     const existingPayment = await Payment.findOne({
       student: student._id,
-      feesAnnouncement: announcementId,
+      fees_announcement: announcementId,
     });
     if (existingPayment) {
       return res
         .status(409)
-        .json(new Apierror(409, "You have already paid this fee."));
+        .json({ message: "You have already paid this fee." });
     }
 
-    const transactionId = `txn_${crypto.randomBytes(8).toString("hex")}`;
+    // 3. Generate unique transactionId
+    const transactionId = `txn_${crypto.randomBytes(6).toString("hex")}`;
 
+    // 4. Save new payment
     const newPayment = await Payment.create({
       student: student._id,
-      fees_structure: announcementId, 
-      amount_paid: announcement.amount, 
+      fees_announcement: announcementId,
+      amount: announcement.amount,
+      status: "completed",
+      receipt_url: `/payment/receipt/${transactionId}`,
       transactionId,
     });
-    const receiptBuffer = await generateReceiptPdf(
-      newPayment,
-      student,
-      announcement
-    );
-    await sendEmailWithAttachment(
-      student.email,
-      `Payment Receipt for ${announcement.title}`,
-      `Dear ${student.name},\n\nPlease find your attached receipt.\n\nTransaction ID: ${newPayment.transactionId}`,
-      receiptBuffer
-    );
-    await User.findByIdAndUpdate(student._id, {
-      $push: { paymentHistory: newPayment._id },
-    });
 
-    return res
-      .status(201)
-      .json(
-        new ApiResponse(201, newPayment, "Payment recorded and receipt sent.")
-      );
+    // 5. Return success + redirect URL
+    return res.status(201).json({
+      success: true,
+      message: "Payment successful",
+      redirectUrl: newPayment.receipt_url,
+    });
   } catch (error) {
     console.error("Error in recordPayment:", error);
-    return res.status(500).json(new Apierror(500, "Internal Server Error"));
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-export { register, login, logout, getMyFeeAnnouncements, recordPayment };
+const applyForHostel = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+
+    if (!userId) {
+      return res.status(401).json(new Apierror(401, "User not authenticated."));
+    }
+
+    const student = await User.findById(userId);
+
+    if (!student) {
+      return res
+        .status(404)
+        .json(new Apierror(404, "Student profile not found."));
+    }
+
+    if (student.role !== "student") {
+      return res
+        .status(403)
+        .json(new Apierror(403, "Only students can apply for a hostel."));
+    }
+
+    if (
+      student.hostel_application_status === "applied" ||
+      student.hostel_application_status === "allocated"
+    ) {
+      return res
+        .status(409)
+        .json(
+          new Apierror(
+            409,
+            `You have already ${student.hostel_application_status} for a hostel.`
+          )
+        );
+    }
+
+    student.hostel_application_status = "applied";
+    await student.save({ validateBeforeSave: false });
+    return res.redirect("/dashboard");
+  } catch (error) {
+    console.error("Error applying for hostel:", error);
+    return res
+      .status(500)
+      .json(new Apierror(500, "Internal Server Error", error.message));
+  }
+};
+
+export {
+  register,
+  login,
+  getMyFeeAnnouncements,
+  recordPayment,
+  applyForHostel,
+};

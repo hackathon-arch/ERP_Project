@@ -8,19 +8,32 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import HostelAnnouncement from "../models/hostelAnnouncements.models.js";
 
 const create_room = async (req, res) => {
+  const { number, floor, capacity, status, people_names } = req.body;
+
   try {
-    const { number, floor, capacity, status, people_names } = req.body;
-    const users = await User.find({ name: { $in: people_names } });
-    if (users.length !== people_names.length) {
+    let peopleArray = [];
+    try {
+      peopleArray = JSON.parse(people_names); // if frontend sends JSON string
+    } catch {
+      peopleArray = Array.isArray(people_names) ? people_names : [people_names];
+    }
+
+    // Find users by names
+    const users = await User.find({ name: { $in: peopleArray } });
+
+    // Validation checks
+    if (users.length !== peopleArray.length) {
       return res
         .status(404)
         .json(new Apierror(404, "One or more users not found by name"));
     }
+
     if (users.length > capacity) {
       return res
         .status(400)
         .json(new Apierror(400, "Too many people for this room"));
     }
+
     if (users.some((u) => u.allocated_room)) {
       return res
         .status(400)
@@ -31,13 +44,17 @@ const create_room = async (req, res) => {
           )
         );
     }
+
+    // Create new room
     const newRoom = await Room.create({
       number,
       floor,
       capacity,
       status,
-      people: users.map((u) => u._id),  
+      people: users.map((u) => u._id),
     });
+
+    // Update allocated users
     await User.updateMany(
       { _id: { $in: users.map((u) => u._id) } },
       {
@@ -47,24 +64,19 @@ const create_room = async (req, res) => {
         },
       }
     );
-    return res
-      .status(201)
-      .json(
-        new ApiResponse(
-          201,
-          newRoom,
-          "New room created and users updated successfully"
-        )
-      );
+
+    res.redirect("/dashboard");
   } catch (error) {
+    console.error("Error in create_room:", error);
     return res
       .status(500)
       .json(new Apierror(500, "Server error", error.message));
   }
 };
 
+// ✅ Make hostel announcement
 const make_hostel_announcement = async (req, res) => {
-  console.log("1. Controller started."); 
+  console.log("1. Controller started.");
   try {
     const {
       title,
@@ -75,6 +87,7 @@ const make_hostel_announcement = async (req, res) => {
       due_date,
     } = req.body;
 
+    // Required fields validation
     const requiredFields = [
       title,
       content,
@@ -88,11 +101,13 @@ const make_hostel_announcement = async (req, res) => {
         .json(new Apierror(400, "All required fields must be provided."));
     }
 
+    // Check college
     const college = await College.findOne({ name: collegeName });
     if (!college) {
       return res.status(404).json(new Apierror(404, "College not found."));
     }
 
+    // Check hostel under that college
     const hostel = await Hostel.findOne({
       name: hostelName,
       college: college._id,
@@ -103,6 +118,7 @@ const make_hostel_announcement = async (req, res) => {
         .json(new Apierror(404, "Hostel not found within this college."));
     }
 
+    // Check query person
     const queryPerson = await User.findOne({ name: queryPersonName });
     if (!queryPerson) {
       return res
@@ -110,27 +126,19 @@ const make_hostel_announcement = async (req, res) => {
         .json(new Apierror(404, "Query person (user) not found."));
     }
 
-    const newAnnouncement = new HostelAnnouncement({
+    // Create new announcement
+    const newAnnouncement = await HostelAnnouncement.create({
       title,
       content,
       college: college._id,
       hostel: hostel._id,
       query_person: queryPerson._id,
-      due_date: due_date,
+      due_date: due_date || null,
     });
 
-    await newAnnouncement.save();
-
-    return res
-      .status(201)
-      .json(
-        new ApiResponse(
-          201,
-          newAnnouncement,
-          "Hostel announcement created successfully."
-        )
-      );
+    res.redirect("/dashboard");
   } catch (error) {
+    console.error("Error in make_hostel_announcement:", error);
     return res
       .status(500)
       .json(new Apierror(500, "Internal Server Error", error.message));

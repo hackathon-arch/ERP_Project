@@ -44,15 +44,7 @@ const create_department = async (req, res) => {
 
     await found_college.save();
 
-    return res
-      .status(201)
-      .json(
-        new ApiResponse(
-          201,
-          newDepartment,
-          "Department created and linked successfully"
-        )
-      );
+    res.redirect("/dashboard");
   } catch (error) {
     return res
       .status(500)
@@ -86,10 +78,7 @@ const create_hostel = async (req, res) => {
     rooms: room_number,
   });
   console.log("Hostel created successfully ✅");
-  return res.status(201).json({
-    message: "Hostel creation successful",
-    data: created_hostel,
-  });
+  res.redirect("/dashboard");
 };
 
 const make_announcement = async (req, res) => {
@@ -98,24 +87,15 @@ const make_announcement = async (req, res) => {
   if (!found_college) {
     return res.status(404).json({ message: "college is not found" });
   }
-  const found_person = await User.findOne({ name: query_person });
-  if (!found_person) {
-    return res.status(404).json({ message: "User is not found" });
-  }
-  if (found_person.role !== "college_admin") {
-    return res.status(489).json({ message: "This is not a college admin" });
-  }
   const announcement = await CollegeAnnouncement.create({
     title,
     content,
     college: found_college._id,
     due_date: date,
-    query_person: found_person._id,
+    query_person,
   });
   console.log(announcement);
-  return res
-    .status(201)
-    .json({ message: "Announcement created for college successfully" });
+  res.redirect("/dashboard");
 };
 
 const make_fees_announcement = async (req, res) => {
@@ -146,10 +126,7 @@ const make_fees_announcement = async (req, res) => {
     semester,
   });
   console.log(newFeesAnnouncement);
-  return res.status(201).json({
-    message: "Fees announcement created",
-    data: newFeesAnnouncement,
-  });
+  res.redirect("/dashboard");
 };
 
 export {
