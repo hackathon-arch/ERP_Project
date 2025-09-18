@@ -1,6 +1,15 @@
 import express from "express";
 import cors from "cors";
+import ejs from "ejs";
+import path from "path"; // 1. Import the 'path' module
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const app = express();
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "src", "views"));
+
 import healtcheckRouter from "./src/routers/healthcheck.routes.js";
 import authRouter from "./src/routers/user.routes.js";
 import adminRouter from "./src/routers/admin.routes.js";
@@ -27,7 +36,7 @@ app.use("/warden", wardenRoutes);
 app.use("/department", departmentRoutes);
 
 app.get("/", (req, res) => {
-  res.json({ message: "this is the home route" });
+  res.render("home");
 });
 
 export default app;
