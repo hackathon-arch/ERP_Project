@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Razorpay Admission Payment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+
+<body class="bg-gradient-to-br from-black via-gray-900 to-green-950 flex items-center justify-center min-h-screen p-4">
+    <div
+        class="w-full max-w-4xl rounded-xl bg-gradient-to-r from-green-500 via-green-800 to-black p-6 shadow-2xl border-[5px] border-green-500/20">
+        <p class="text-center text-2xl text-white font-bold mb-6">Complete Payment to Get Your Student ID</p>
+
+        <form class="pay-form" method="POST">
+            <input type="hidden" name="amount" value="50000" />
+
+            <div class="flex flex-col items-center gap-4 mt-[1.5cm]">
+                <input type="email" name="email" placeholder="Enter your admission email" required
+                    class="px-4 py-2 rounded-md w-2/3 text-black" />
+
+                <button type="submit"
+                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md text-lg font-medium">
+                    Pay Now
+                </button>
+            </div>
+
+            <p class="text-sm text-center text-gray-400 mt-[1cm] text-white">
+                Go Back To Home Page -> 
+                <a href="/" class="font-medium text-green-400 hover:underline"> Home Page</a>
+            </p>
+
+        </form>
+    </div>
+
+    <script>
+
+        $(document).ready(function () {
+            $('.pay-form').submit(function (e) {
+                e.preventDefault();
+
+                const formData = $(this).serialize();
+
+                $.ajax({
+                    url: "/payment/createAdmissionPayment",
+                    type: "POST",
+                    data: formData,
+                    success: function (res) {
+                        if (res.success) {
+                            const options = {
+                                key: res.key_id,
+                                amount: res.amount,
+                                currency: "INR",
+                                image: "https://dummyimage.com/600x400/000/fff",
+                                order_id: res.order_id,
+                                handler: function (response) {
+                                    $.ajax({
+                                        url: "/payment/verifyAdmissionPayment",
+                                        type: "POST",
+                                        data: { email: res.email },
+                                        success: function () {
+                                            alert("Payment Sucessfull")
+                                        },
+                                        error: function () {
+                                            alert("Payment for Admission is Successfull. Contact on: 7001443858 for Student ID");
+                                        }
+                                    });
+                                },
+                                prefill: {
+                                    name: res.name,
+                                    email: res.email,
+                                    contact: res.contact
+                                },
+                                notes: {
+                                    description: res.description
+                                },
+                                theme: {
+                                    color: "#2300a3"
+                                }
+                            };
+
+                            const razorpayObject = new Razorpay(options);
+                            razorpayObject.on('payment.failed', function () {
+                                alert("Payment Failed");
+                            });
+                            razorpayObject.open();
+                        } else {
+                            alert(res.msg);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,6 +1,7 @@
 import Router from "express";
 const router = Router();
 import {
+  admission,
   register,
   login,
   applyForHostel,
@@ -14,6 +15,12 @@ import CollegeAnnouncement from "../models/collegeAnnouncements.models.js";
 import FeesAnnouncement from "../models/feesAnnouncement.js";
 import DepartmentAnnouncement from "../models/departmentAnnouncements.models.js";
 import HostelAnnouncement from "../models/hostelAnnouncements.models.js";
+
+router.get("/admission", (req, res) => {
+  res.render("admission");
+});
+
+router.post("/admission", admission);
 
 router.get("/register", (req, res) => {
   res.render("register");

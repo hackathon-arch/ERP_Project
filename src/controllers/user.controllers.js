@@ -9,7 +9,45 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { generateReceiptPdf } from "../utils/receiptGenerator.js";
 import { sendEmailWithAttachment } from "../utils/emailService.js";
+import { AdmissionOrder } from "../models/admissionOrder.js";
 import crypto from "crypto";
+import dotenv from "dotenv";
+import nodemailer from "nodemailer";
+import { create } from "domain";
+import { error } from "console";
+dotenv.config();
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
+
+
+const admission = async (req, res) => {
+  try {
+    const { name, email, collegeName, departmentName, address } = req.body;
+
+    if (![name, email, collegeName, departmentName, address].every(field => field?.trim())) {
+      return res.redirect("/admission?error=Please fill all the fields");
+    }
+
+    const existingAdmission = await AdmissionOrder.findOne({ email });
+    if (existingAdmission) {
+      return res.render("admission", {error: new Error("Alredy requested for admission!!")});
+    }
+
+    await AdmissionOrder.create(req.body);
+    
+    return res.redirect("/payment/admissionPaymentPage");
+
+  } catch (error) {
+    console.error("Error admission:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 const register = async (req, res) => {
   try {
@@ -286,6 +324,7 @@ const applyForHostel = async (req, res) => {
 };
 
 export {
+  admission,
   register,
   login,
   getMyFeeAnnouncements,

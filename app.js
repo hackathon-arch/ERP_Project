@@ -8,6 +8,7 @@ import authRouter from "./src/routers/user.routes.js";
 import adminRouter from "./src/routers/admin.routes.js";
 import wardenRoutes from "./src/routers/warden.routes.js";
 import departmentRoutes from "./src/routers/department.routes.js";
+import paymentRoutes from "./src/routers/payment.routes.js";
 import cookieParser from "cookie-parser";
 import { protect } from "./src/middlewares/user.middlewares.js";
 import { User } from "./src/models/user.js";
@@ -42,6 +43,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/admin", adminRouter);
 app.use("/warden", wardenRoutes);
 app.use("/department", departmentRoutes);
+app.use('/payment', paymentRoutes);
 
 app.get("/", async (req, res) => {
   let user = null;
